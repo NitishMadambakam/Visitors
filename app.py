@@ -1,5 +1,6 @@
 from flask import Flask, redirect, url_for, request, render_template, flash, session, abort
-import pymysql
+import psycopg2
+import os
 from flask_session import Session
 from key import secret_key, salt, salt2
 from itsdangerous import URLSafeTimedSerializer
@@ -11,8 +12,10 @@ app.secret_key = secret_key
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
-# Connect to MySQL using PyMySQL
-mydb = pymysql.connect(host="localhost", user="root", password="admin", db="visitors", autocommit=True)
+# Connect to PostgreSQL using psycopg2
+DATABASE_URL = os.getenv("DATABASE_URL")
+conn = psycopg2.connect(DATABASE_URL)
+conn.autocommit = True  # Auto-commit after each query
 
 @app.route('/')
 def admin():
@@ -25,8 +28,8 @@ def adminlogin():
     if request.method == 'POST':
         name = request.form['name']
         password = request.form['password']
-        cursor = mydb.cursor()
-        cursor.execute('SELECT count(*) FROM admin WHERE username=%s AND password=%s', [name, password])
+        cursor = conn.cursor()
+        cursor.execute('SELECT count(*) FROM admin WHERE username=%s AND password=%s', (name, password))
         count = cursor.fetchone()[0]
         cursor.close()
         if count == 1:
@@ -49,10 +52,10 @@ def registration():
         username = request.form['username']
         password = request.form['password']
         email = request.form['email']
-        cursor = mydb.cursor()
-        cursor.execute('SELECT count(*) FROM admin WHERE username=%s', [username])
+        cursor = conn.cursor()
+        cursor.execute('SELECT count(*) FROM admin WHERE username=%s', (username,))
         count = cursor.fetchone()[0]
-        cursor.execute('SELECT count(*) FROM admin WHERE email=%s', [email])
+        cursor.execute('SELECT count(*) FROM admin WHERE email=%s', (email,))
         count1 = cursor.fetchone()[0]
         cursor.close()
         if count == 1:
@@ -76,15 +79,15 @@ def confirm(token):
     except Exception:
         return 'Link Expired. Register again.'
     else:
-        cursor = mydb.cursor()
+        cursor = conn.cursor()
         username = data['username']
-        cursor.execute('SELECT count(*) FROM admin WHERE username=%s', [username])
+        cursor.execute('SELECT count(*) FROM admin WHERE username=%s', (username,))
         count = cursor.fetchone()[0]
         if count == 1:
             flash('You are already registered!')
         else:
             cursor.execute('INSERT INTO admin(username, password, email) VALUES(%s, %s, %s)',
-                           [data['username'], data['password'], data['email']])
+                           (data['username'], data['password'], data['email']))
             flash('Registration successful!')
         cursor.close()
         return redirect(url_for('adminlogin'))
@@ -93,8 +96,8 @@ def confirm(token):
 def forgot():
     if request.method == 'POST':
         email = request.form['email']
-        cursor = mydb.cursor()
-        cursor.execute('SELECT count(*) FROM admin WHERE email=%s', [email])
+        cursor = conn.cursor()
+        cursor.execute('SELECT count(*) FROM admin WHERE email=%s', (email,))
         count = cursor.fetchone()[0]
         if count == 1:
             confirm_link = url_for('reset', token=token(email, salt=salt2), _external=True)
@@ -121,8 +124,8 @@ def reset(token):
             newpassword = request.form['npassword']
             confirmpassword = request.form['cpassword']
             if newpassword == confirmpassword:
-                cursor = mydb.cursor()
-                cursor.execute('UPDATE admin SET password=%s WHERE email=%s', [newpassword, email])
+                cursor = conn.cursor()
+                cursor.execute('UPDATE admin SET password=%s WHERE email=%s', (newpassword, email))
                 flash('Password reset successful')
                 cursor.close()
                 return redirect(url_for('adminlogin'))
@@ -144,15 +147,15 @@ def adduser():
         fullname = request.form['name']
         mobile = request.form['mobile']
         room = request.form['room']
-        cursor = mydb.cursor()
-        cursor.execute('INSERT INTO users VALUES(%s, %s, %s, %s)', [id1, fullname, room, mobile])
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO users(user_id, name, room, phno) VALUES(%s, %s, %s, %s)', (id1, fullname, room, mobile))
         cursor.close()
         return redirect(url_for('visitor'))
     return render_template('Add-Users.html')
 
 @app.route('/visitor', methods=['GET', 'POST'])
 def visitor():
-    cursor = mydb.cursor()
+    cursor = conn.cursor()
     cursor.execute('SELECT * FROM users')
     data = cursor.fetchall()
     cursor.execute('SELECT * FROM visitors')
@@ -162,8 +165,8 @@ def visitor():
         id1 = request.form['id']
         name = request.form['name']
         mobile = request.form['mobile']
-        cursor = mydb.cursor()
-        cursor.execute('INSERT INTO visitors(vid, vname, phno) VALUES(%s, %s, %s)', [id1, name, mobile])
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO visitors(vid, vname, phno) VALUES(%s, %s, %s)', (id1, name, mobile))
         cursor.execute('SELECT * FROM visitors')
         details = cursor.fetchall()
         cursor.close()
@@ -171,17 +174,56 @@ def visitor():
 
 @app.route('/checkinvisitor/<id1>')
 def checkinvisitor(id1):
-    cursor = mydb.cursor()
-    cursor.execute('UPDATE visitors SET checkin=NOW() WHERE vid=%s', [id1])
+    cursor = conn.cursor()
+    cursor.execute('UPDATE visitors SET checkin=NOW() WHERE vid=%s', (id1,))
     cursor.close()
     return redirect(url_for('visitor'))
 
 @app.route('/checkoutvisitor/<id1>')
 def checkoutvisitor(id1):
-    cursor = mydb.cursor()
-    cursor.execute('UPDATE visitors SET checkout=NOW() WHERE vid=%s', [id1])
+    cursor = conn.cursor()
+    cursor.execute('UPDATE visitors SET checkout=NOW() WHERE vid=%s', (id1,))
     cursor.close()
     return redirect(url_for('visitor'))
 
+def create_tables():
+    cursor = conn.cursor()  # ← ADD THIS LINE
+    queries = [
+        """
+        CREATE TABLE IF NOT EXISTS admin (
+            username VARCHAR(50) PRIMARY KEY,
+            password VARCHAR(15),
+            email VARCHAR(60)
+        );
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS users (
+            user_id INT PRIMARY KEY,
+            name VARCHAR(50),
+            room INT,
+            phno BIGINT
+        );
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS visitors (
+            vid INT PRIMARY KEY,
+            vname VARCHAR(50),
+            checkin TIMESTAMP DEFAULT NULL,
+            checkout TIMESTAMP DEFAULT NULL,
+            phno VARCHAR(11),
+            FOREIGN KEY (vid) REFERENCES users(user_id)
+                ON UPDATE CASCADE ON DELETE CASCADE
+        );
+        """
+    ]
+    for q in queries:
+        cursor.execute(q)
+    cursor.close()  # ← GOOD PRACTICE TO CLOSE CURSOR
+
+
+# Run this only once
+create_tables()
+
+
 if __name__ == '__main__':
-    app.run(debug=True, use_reloader=True)
+    app.run(debug=True)
