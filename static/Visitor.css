@@ -1,0 +1,44 @@
+body{
+    background-image: url(https://img.freepik.com/free-photo/modern-luxury-hotel-office-reception-lounge-with-meeting-room_105762-1772.jpg?w=1060&t=st=1672580725~exp=1672581325~hmac=786faa19212dcf39fcfa02c8458cd5ec53afa164dec25a2976a291e6f82fd67a);
+    background-size: cover;
+}
+body > table{
+    width: 80%;
+    margin: 40px auto;
+    background: linear-gradient(-135deg, #512c04c9, #a68a5f);
+}
+table{
+    border-collapse: collapse;
+}
+table.list{
+    width: 100%;
+}
+td, th{
+    border: 1px solid #ddd;
+    text-align: left;
+    padding: 8px 15px;
+}
+tr:nth-child(even),table.list thead>tr{
+    background-color: #ddd;
+}
+input[type="text"], input[type="number"]{
+    width: 91%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+input[type="submit"],input[type="reset"]{
+    background: #eee;
+    padding: 6px 12px;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 30px;
+    border: none;
+    margin: 15px 0 10px;
+    outline: none;
+}
+input[type="submit"]:hover{
+    background: #f3f3f3;
+}

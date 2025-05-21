@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<!-- Created By CodingLab - www.codinglabweb.com -->
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <!---<title> Responsive Registration Form | CodingLab </title>--->
+    
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <link rel="stylesheet" href="{{url_for('static',filename = '/Addusers.css')}}">
+     
+    
+  
+   </head>
+<body>
+  <div class="container">
+    <div class="title">ADD STUDENT</div>
+    <div class="content">
+      <form  action ="{{url_for ('adduser')}}" method="POST">
+        <div class="user-details">
+          <div class="input-box">
+            <span class="details"> User-ID</span>
+            <input type="text" placeholder="Enter your Id Number" name="id1" required>
+          </div>
+          <div class="input-box">
+            <span class="details">Full Name</span>
+            <input type="text" placeholder="Enter your FullName" name="name" required>
+          </div>
+          <div class="input-box">
+            <span class="details">mobile Number</span>
+            <input type="text" placeholder="Enter your number" name="mobile" required>
+          </div> 
+
+          <div class="input-box">
+            <span class="details">Room Number</span>
+            <input type="text" placeholder="Enter your Room Number " name="room" required>
+          </div>
+      <button class="button">submit</button>
+
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>
