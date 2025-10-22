@@ -1,9 +1,15 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f7f7f7;
+}
+
 .container {
-    max-width: 400px;
-    margin: 0 auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    width: 400px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
 }
 
 .container h2 {
@@ -11,29 +17,25 @@
     margin-bottom: 20px;
 }
 
-.container label {
-    display: block;
-    margin-bottom: 8px;
-}
-
-.container input[type="text"],
-.container input[type="password"],
-.container input[type="email"] {
+.container input[type=text],
+.container input[type=password],
+.container input[type=email] {
     width: 100%;
     padding: 10px;
-    margin-bottom: 20px;
+    margin: 10px 0 20px 0;
     border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
+    border-radius: 5px;
 }
 
 .container button {
+    width: 100%;
+    padding: 10px;
     background-color: #4CAF50;
     color: white;
-    padding: 10px 20px;
     border: none;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
+    font-size: 16px;
 }
 
 .container button:hover {
@@ -41,16 +43,6 @@
 }
 
 .links {
-    text-align: left;
-    margin-top: 20px;
-}
-
-.links a {
-    text-decoration: none;
-    color: #333;
-    margin-right: 10px;
-}
-
-.no-account {
-    margin-top: 10px;
+    text-align: center;
+    margin-top: 15px;
 }
