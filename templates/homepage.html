@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Homepage</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='homepage.css') }}">
+</head>
+<body>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <center><b style="color:green">{{ message }}</b></center>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <center>
+        <h1>Welcome, {{ session['admin'] }}</h1>
+        <a href="{{ url_for('adduser') }}"><button>Add Student</button></a>
+        <a href="{{ url_for('visitor') }}"><button>Visitor Records</button></a>
+        <a href="{{ url_for('logout') }}"><button>Logout</button></a>
+    </center>
+</body>
+</html>
