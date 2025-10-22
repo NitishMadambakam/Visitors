@@ -10,5 +10,3 @@ def sendmail(to,subject,body):
     msg.set_content(body)
     server.send_message(msg)
     server.quit()
-
-
