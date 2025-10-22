@@ -1,44 +1,43 @@
 <!DOCTYPE html>
-<!-- Created By CodingLab - www.codinglabweb.com -->
 <html lang="en" dir="ltr">
-  <head>
+<head>
     <meta charset="UTF-8">
-    <!---<title> Responsive Registration Form | CodingLab </title>--->
-    
-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <link rel="stylesheet" href="{{url_for('static',filename = '/Addusers.css')}}">
-     
-    
-  
-   </head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Addusers.css') }}">
+</head>
 <body>
-  <div class="container">
-    <div class="title">ADD STUDENT</div>
-    <div class="content">
-      <form  action ="{{url_for ('adduser')}}" method="POST">
-        <div class="user-details">
-          <div class="input-box">
-            <span class="details"> User-ID</span>
-            <input type="text" placeholder="Enter your Id Number" name="id1" required>
-          </div>
-          <div class="input-box">
-            <span class="details">Full Name</span>
-            <input type="text" placeholder="Enter your FullName" name="name" required>
-          </div>
-          <div class="input-box">
-            <span class="details">mobile Number</span>
-            <input type="text" placeholder="Enter your number" name="mobile" required>
-          </div> 
-
-          <div class="input-box">
-            <span class="details">Room Number</span>
-            <input type="text" placeholder="Enter your Room Number " name="room" required>
-          </div>
-      <button class="button">submit</button>
-
-      </form>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <center><b style="color:green">{{ message }}</b></center>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <div class="container">
+        <div class="title">ADD STUDENT</div>
+        <div class="content">
+            <form action="{{ url_for('adduser') }}" method="POST">
+                <div class="user-details">
+                    <div class="input-box">
+                        <span class="details">User-ID</span>
+                        <input type="text" placeholder="Enter your Id Number" name="id1" required>
+                    </div>
+                    <div class="input-box">
+                        <span class="details">Full Name</span>
+                        <input type="text" placeholder="Enter your FullName" name="name" required>
+                    </div>
+                    <div class="input-box">
+                        <span class="details">Mobile Number</span>
+                        <input type="text" placeholder="Enter your number" name="mobile" required>
+                    </div> 
+                    <div class="input-box">
+                        <span class="details">Room Number</span>
+                        <input type="text" placeholder="Enter your Room Number" name="room" required>
+                    </div>
+                    <button class="button" type="submit">Submit</button>
+                </div>
+            </form>
+        </div>
     </div>
-  </div>
-
 </body>
 </html>
